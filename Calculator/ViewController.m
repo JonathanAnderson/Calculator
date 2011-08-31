@@ -8,7 +8,47 @@
 
 #import "ViewController.h"
 
+@interface ViewController()
+@property (readonly) CalculatorBrain *brain;
+@end
+
 @implementation ViewController
+
+- (CalculatorBrain *)brain
+{
+    if (!brain) {
+        brain = [[CalculatorBrain alloc] init];
+    }
+    return brain;
+}
+
+- (IBAction)digitPressed:(UIButton *)sender
+{
+    NSString *digit = sender.titleLabel.text;
+    if (userIsInTheMiddleOfTypingANumber) {
+        if ([display.text isEqualToString:@"0"]) {
+            display.text = digit;
+        } else {
+            display.text = [display.text stringByAppendingString:digit];
+        }
+    } else {
+        display.text = digit;
+        userIsInTheMiddleOfTypingANumber = YES;
+    }
+    NSLog(@"KeyPress:%@ %@", sender.titleLabel.text, brain);
+}
+
+- (IBAction)operationPressed:(UIButton *)sender
+{
+    if (userIsInTheMiddleOfTypingANumber) {
+        self.brain.operand = display.text.doubleValue;
+        userIsInTheMiddleOfTypingANumber = NO;
+    }
+    NSString *operation = sender.titleLabel.text;
+    [self.brain performOperation:operation];
+    display.text = [NSString stringWithFormat:@"%g", self.brain.operand];
+    NSLog(@"KeyPress:%@ %@", sender.titleLabel.text, brain);
+}
 
 - (void)didReceiveMemoryWarning
 {
